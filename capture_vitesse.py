@@ -2,20 +2,20 @@ from ivy.std_api import *
 import time
 import numpy as np
 
-g = 9.81
 v_lim = [10,10]
-v_managed = 10
-mode_choisi = "X"
+v_managed = 10 
+v_selected = 10
+mode_choisi = "Managed"
 val = 0
+nx=1
+nx_AP_max=1
+#nx_max=1 
+previous_state_vector = {"x":0,"y":0,"z":0,"IAS":0,"fpa":0,"phi":0,"psi":0}
+state_vector = {"x":0,"y":0,"z":0,"IAS":0,"fpa":0,"phi":0,"psi":0}
 
+#Partie Ivy
 def on_cx_proc(agent, connected):
     pass
-
-def on_msg1(agent, *larg):
-    print("Reception: Vp={}, fpa={}".format(larg[3], larg[4]))
-
-def on_msg2(agent, *larg):
-    print("Reception: selected={}, capture={}".format(larg[0], larg[1]))
 
 def on_die_proc(agent, _id):
     pass
@@ -35,26 +35,49 @@ def maj_vitesse_man(agent, *larg):
 def mode_choisi(agent, *larg):
     mode_choisi = larg[0]
     val = larg[1]
-    return {"Mode":larg[0], "Val"=larg[1]}
+    if mode_choisi == "SelectedSpeed":
+        v_selected = val
+    return {"Mode":larg[0], "Val":larg[1]}
 
+def maj_nx(agent, *larg):
+    #nx_max = larg[0]
+    nx_AP_max = larg[1]
+    return {"nx":larg[0], "nx_AP":larg[1]}
+
+
+
+
+
+#Partie Capture de vitesse
 
 #Si mode sélecté
-def vitesse_selected(agent, *larg):
-    if V_selected < v_lim[0]:
-        V_selected = v_lim[0]
-    elif V_selected > v_lim[1] :
-        V_selected = v_lim[1]
+def vitesse_selected_checked(agent, *larg):
+    if v_selected < v_lim[0]:
+        v_selected = v_lim[0]
+
+    elif v_selected > v_lim[1] :
+        v_selected = v_lim[1]
+
     else:
         pass    
-    return V_selected
+    return v_selected
     
-#Si mode managé
 
 
 def capture_vitesse(agent, *larg):
     k11 = 0.08
-    nx = (V_selected - larg[3])*k11 + np.sin(larg[4]) #v_dot = vitesse_selected(agent, *larg).dot
+    if mode_choisi == "Managed":
+        nx = (v_managed - previous_state_vector["IAS"])*k11 + np.sin(previous_state_vector["fpa"])
+    else:
+        nx = (v_selected - previous_state_vector["IAS"])*k11 + np.sin(previous_state_vector["fpa"])
 
+    return nx
+
+def nx_checked(agent, *larg):
+    if nx > nx_AP_max:
+        nx = nx_AP_max
+    else : 
+        pass
     return nx
 
 
@@ -66,3 +89,4 @@ IvyBindMsg(maj_state_v, "^StateVector x=(\S+) y=(\S+) z=(\S+) Vp=(\S+) fpa=(\S+)
 IvyBindMsg(maj_vitesse, "^SpeedLimits vmin=(\S+) vmax=(\S+)")
 IvyBindMsg(mode_choisi, "^FCUSpeedMach Mode=(\S+) Val=(\S+)") # Mode = Managed, SelectedSpeed
 IvyBindMsg(maj_vitesse_man, "^ManagedSpeed vi=(\S+) ")
+IvyBindMsg(maj_nx, "^LimitsN nx=(\S+) nz=(\S+) nx_AP=(\S+) nz_AP=(\S+)")
