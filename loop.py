@@ -24,7 +24,7 @@ def cl(agent,_id):
 def apply_lim(value, max, min=0):
     if value>max:
         return max
-    elif value< min:
+    elif value < min:
         return min
     else value
 
@@ -46,8 +46,8 @@ def capture_alt(agent, *larg):
         nz = ((zc-z)/v*k11-state_vector["fpa"])*k22+np.cos(state_vector["fpa"])/np.cos(state_vector["phi"])
         return apply_lim(nz,nz_max,nz_min)
     elif alt_mode == "Managed":
-
-
+        nz = ((zc-z)/v*k11-state_vector["fpa"])*k22+np.cos(state_vector["fpa"])/np.cos(state_vector["phi"])
+        return apply_lim(nz,nz_max,nz_min)
     elif alt_mode == "FPA":
 
 
