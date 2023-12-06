@@ -8,9 +8,8 @@ v_managed = 10
 v_selected = 10
 mode_choisi = "Managed"
 val = 0
-nx = 1
-nx_AP_max = 1
-#nx_max = 1 
+nx_neg_AP = 0
+nx_pos_AP = 0
 IAS = 10
 fpa = 0
 z = 0
@@ -47,8 +46,9 @@ def mode_choisi(agent, *larg):
 
 def maj_nx(agent, *larg):
     #nx_max = larg[0]
-    nx_AP_max = larg[1]
-    return {"nx":larg[0], "nx_AP":larg[1]}
+    nx_neg_AP = larg[0]
+    nx_pos_AP = larg[1]
+    return {"nx_neg_AP":larg[0], "nx_pos_AP":larg[1]}
 
 
 
@@ -87,9 +87,11 @@ def capture_vitesse(agent, *larg):
     return nx
 
 def nx_checked(agent, *larg):
-    if nx > nx_AP_max:
-        nx = nx_AP_max
-    else : 
+    if nx > nx_pos_AP:
+        nx = nx_pos_AP
+    elif nx < nx_neg_AP: 
+        nx = nx_neg_AP
+    else: 
         pass
     return nx
 
@@ -100,6 +102,7 @@ IvyInit(app_name, "[%s ready]" % app_name, 0, on_cx_proc, on_die_proc)
 IvyStart(ivy_bus)
 IvyBindMsg(maj_state_v, "^StateVector x=(\S+) y=(\S+) z=(\S+) IAS=(\S+) fpa=(\S+) psi=(\S+) phi=(\S+)")
 IvyBindMsg(maj_vitesse, "^SpeedLimits vmin=(\S+) vmax=(\S+)")
+# dépend du mode choisi, si mode managed choisi, val = 0 donc necessite d'avoir la valeur de la vitesse managée cf ligne 107
 IvyBindMsg(mode_choisi, "^FCUSpeedMach Mode=(\S+) Val=(\S+)") # Mode = Managed, SelectedSpeed
 IvyBindMsg(maj_vitesse_managed, "^ManagedSpeed vi=(\S+) ")
-IvyBindMsg(maj_nx, "^LimitsN nx=(\S+) nz=(\S+) nx_AP=(\S+) nz_AP=(\S+)")
+IvyBindMsg(maj_nx, "^LimitsNAP nx_pos_AP=(\S+) nx_neg_AP=(\S+) nz_pos_AP=(\S+) nz_neg_AP=(\S+)")
