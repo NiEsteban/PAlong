@@ -101,5 +101,5 @@ IvyStart(ivy_bus)
 IvyBindMsg(maj_state_v, "^StateVector x=(\S+) y=(\S+) z=(\S+) IAS=(\S+) fpa=(\S+) psi=(\S+) phi=(\S+)")
 IvyBindMsg(maj_vitesse, "^SpeedLimits vmin=(\S+) vmax=(\S+)")
 IvyBindMsg(mode_choisi, "^FCUSpeedMach Mode=(\S+) Val=(\S+)") # Mode = Managed, SelectedSpeed
-IvyBindMsg(maj_vitesse_man, "^ManagedSpeed vi=(\S+) ")
+IvyBindMsg(maj_vitesse_managed, "^ManagedSpeed vi=(\S+) ")
 IvyBindMsg(maj_nx, "^LimitsN nx=(\S+) nz=(\S+) nx_AP=(\S+) nz_AP=(\S+)")
