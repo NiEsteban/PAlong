@@ -2,16 +2,18 @@ from ivy.std_api import *
 import time
 import numpy as np
 
+# variables globales
 v_lim = [10,10]
 v_managed = 10 
 v_selected = 10
 mode_choisi = "Managed"
 val = 0
-nx=1
-nx_AP_max=1
-#nx_max=1 
+nx = 1
+nx_AP_max = 1
+#nx_max = 1 
 IAS = 10
 fpa = 0
+z = 0
 state_vector = {"x":0,"y":0,"z":0,"IAS":0,"fpa":10,"phi":0,"psi":0}
 
 #Partie Ivy
@@ -22,6 +24,7 @@ def on_die_proc(agent, _id):
     pass
 
 def maj_state_v(agent, *larg):
+    z = larg[2]
     IAS = larg[3]
     fpa = larg[4]
     state_vector = {"x":larg[0],"y":larg[1],"z":larg[2],"IAS":larg[3],"fpa":larg[4],"phi":larg[5],"psi":larg[6]}
@@ -31,7 +34,7 @@ def maj_vitesse(agent, *larg):
     v_lim[0],v_lim[1]=larg[0],larg[1]
     return {"vmin":larg[0],"vmax":larg[1]}
     
-def maj_vitesse_man(agent, *larg):
+def maj_vitesse_managed(agent, *larg):
     v_managed = larg[0]
     return {"vi":larg[0]}
 
@@ -52,6 +55,13 @@ def maj_nx(agent, *larg):
 
 
 #Partie Capture de vitesse
+
+#conversion IAS en CAS
+def calculer_vitesse_TAS(IAS,z):
+    TAS = IAS + 0.01 * IAS * z/600 #Pour passer directement de l'IAS à la TAS: plus 1% de IAS par tranche de 600ft d'altitude 
+    return TAS
+
+
 
 #Si mode sélecté
 def vitesse_selected_checked(agent, *larg):
